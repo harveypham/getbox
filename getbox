@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import print_function
+
 import subprocess
 import argparse
 import getpass
@@ -94,7 +94,7 @@ def get_ami_id(instance_type):
 
 def all_instance_types():
     info = dict(tuple(s.strip().split()) for s in ephemeral_info.split(";"))
-    return info.keys()
+    return list(info.keys())
 
 
 def get_ephemeral_info(type_):
@@ -105,7 +105,7 @@ def get_ephemeral_info(type_):
     elif '/' not in info[type_]:
         return int(info[type_]), 1
     else:
-        return map(int, info[type_].split('/'))
+        return list(map(int, info[type_].split('/')))
 
 
 INIT_EPHEMERALS = """#!/bin/bash
@@ -293,7 +293,7 @@ def kill_volume(tags, ebs_id_prefix):
     table_row(t, *format_volume_row(vol))
 
     print_("Delete this volume? [y/N] ", end='')
-    if raw_input('') in ('Y', 'y'):
+    if input('') in ('Y', 'y'):
         client.delete_volume(VolumeId=vol['VolumeId'])
         sys.exit(0)
     else:
@@ -334,7 +334,7 @@ def kill_instance(tags, partId):
     table_row(t, *instance_table_row(inst))
 
     print_("Terminate this instance? [y/N] ", end='')
-    if raw_input('') in ('Y', 'y'):
+    if input('') in ('Y', 'y'):
         client.terminate_instances(InstanceIds=[inst['InstanceId']])
         sys.exit(0)
     else:
@@ -351,7 +351,7 @@ def rename_instance(tags, partId, name):
     table_row(t, *instance_table_row(inst))
 
     print_("Rename this instance? [y/N] ", end='')
-    if raw_input('') in ('Y', 'y'):
+    if input('') in ('Y', 'y'):
         instanceId = inst['InstanceId']
         instance_tags = [x for x in inst['Tags'] if x['Key'] != 'Name']
         instance_tags.append({'Key': 'Name', 'Value': name})
@@ -549,11 +549,11 @@ def wait_for_ssh(client, dnsName):
             sock.close()
             spin.done()
             return
-        except socket.timeout, e:
+        except socket.timeout as e:
             time.sleep(1)
             spin.tick()
 
-        except socket.error, e:
+        except socket.error as e:
             if e.errno != errno.ECONNREFUSED:
                 spin.done()
                 print_("Failed to connect: %s" % e, style='error')
@@ -569,7 +569,7 @@ def tag_ebs(client, instanceId, tags, name='/dev/sdg'):
         for inst in rsr['Instances']:
             for m in inst['BlockDeviceMappings']:
                 if m['DeviceName'] == name:
-                    client.create_tags(Resources=[m['Ebs']['VolumeId']], Tags=[{'Key':k, 'Value':v} for k, v in tags.items()])
+                    client.create_tags(Resources=[m['Ebs']['VolumeId']], Tags=[{'Key':k, 'Value':v} for k, v in list(tags.items())])
 
 
 def wait_for_init(client, instanceId):
@@ -644,7 +644,7 @@ def get_spot(instance_type, tags, ebs_id_prefix, volume_size=None,
             'ImageId': get_ami_id(instance_type),
             'KeyName': CONFIG_SSH_KEY_NAME,
             'InstanceType': instance_type,
-            'SubnetId': random.choice(CONFIG_SUBNETS.values()),
+            'SubnetId': random.choice(list(CONFIG_SUBNETS.values())),
             'EbsOptimized': is_ebs_optimized_type(instance_type),
             'IamInstanceProfile': {
                 'Arn': CONFIG_IAM_ROLE_ARN,
@@ -739,7 +739,7 @@ def get_spot(instance_type, tags, ebs_id_prefix, volume_size=None,
             spin.done()
             instanceId = response['SpotInstanceRequests'][0]['InstanceId']
 
-            instance_tags = [{'Key': k, 'Value': v} for k, v in tags.items()]
+            instance_tags = [{'Key': k, 'Value': v} for k, v in list(tags.items())]
             if name:
                 instance_tags.append({'Key': 'Name', 'Value': name})
 
@@ -781,7 +781,7 @@ def get_spot(instance_type, tags, ebs_id_prefix, volume_size=None,
 
 def install_check():
     v = boto3.__version__.split('.')
-    version = map(int, v[:2])
+    version = list(map(int, v[:2]))
     if version < [1, 4]:
         print_("boto3>=1.4 recommended, install it with pip install --update boto3")
 
@@ -789,7 +789,7 @@ def install_check():
 def install_binary(dst='/usr/local/bin/getbox'):
     try:
         shutil.copyfile(sys.argv[0], dst)
-        os.chmod(dst, 0755)
+        os.chmod(dst, 0o755)
         return dst
     except IOError as e:
         if e.errno in (13, 1):
@@ -864,7 +864,7 @@ def get_owner():
 
 
 def get_tags():
-    tt = {k: v for k, v in CONFIG_EXTRA_TAGS.iteritems()}
+    tt = {k: v for k, v in CONFIG_EXTRA_TAGS.items()}
     tt[CONFIG_OWNER_TAG_NAME] = get_owner()
     return tt
 
