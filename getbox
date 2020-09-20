@@ -7,15 +7,22 @@ import shutil
 import random
 import socket
 import errno
-import boto3
 import time
 import json
 import sys
 import os
 import re
 
+import boto3
+
+
 _config = None
 _args_config = None
+
+
+def b64encode_(s):
+    import base64
+    return base64.b64encode(s.encode("ascii")).decode("ascii")
 
 
 def get_argv_config_dict():
