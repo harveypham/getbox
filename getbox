@@ -6,7 +6,6 @@ import getpass
 import shutil
 import random
 import socket
-import base64
 import errno
 import boto3
 import time
@@ -672,13 +671,13 @@ def get_spot(instance_type, tags, ebs_id_prefix, volume_size=None,
         # attach existing
         init = EBS_MIRROR_ATTACH_INIT if mirror else EBS_ATTACH_INIT
         ebs_vol_id, zone = vol['VolumeId'], vol['AvailabilityZone']
-        launchSpec['UserData'] = base64.b64encode(init)
+        launchSpec['UserData'] = b64encode_(init)
         launchSpec['SubnetId'] = CONFIG_SUBNETS[zone]
     else:
         # create new EBS
         ebs_vol_id = None
         init = EBS_MIRROR_INIT if mirror else EBS_FORMAT_INIT
-        launchSpec['UserData'] = base64.b64encode(init)
+        launchSpec['UserData'] = b64encode_(init)
         launchSpec['BlockDeviceMappings'] = [
                 {
                     'DeviceName': '/dev/sdg',
