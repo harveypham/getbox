@@ -16,6 +16,7 @@ import re
 import boto3
 
 
+_profile = None
 _config = None
 _args_config = None
 
@@ -34,11 +35,6 @@ def get_argv_config_dict():
     return res
 
 
-def get_profile_name():
-    sess = boto3._get_default_session()
-    return sess.profile_name
-
-
 def get_config(k, defaultval, fromstr=str):
     global _profile, _config, _args_config
 
@@ -47,9 +43,8 @@ def get_config(k, defaultval, fromstr=str):
         if os.path.exists(config_path):
             with open(config_path) as f:
                 _config = json.loads(f.read())
-                profile_name = get_profile_name()
-                if profile_name != "default":
-                    _config = _config.get("profiles", {}).get(profile_name, {})
+                if _profile:
+                    _config = _config.get("profiles", {}).get(_profile, {})
         else:
             _config = {}
 
@@ -953,7 +948,8 @@ if __name__ == '__main__':
     p = parser.parse_known_args()[0]
 
     if p.profile:
-        boto3.setup_default_session(profile_name=p.profile)
+        _profile = p.profile
+        boto3.setup_default_session(profile_name=_profile)
 
     if p.cmd is None:
         print_usage()
