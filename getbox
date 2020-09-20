@@ -650,7 +650,7 @@ def get_spot(instance_type, tags, ebs_id_prefix, volume_size=None,
             'ImageId': get_ami_id(instance_type),
             'KeyName': CONFIG_SSH_KEY_NAME,
             'InstanceType': instance_type,
-            'SubnetId': random.choice(list(CONFIG_SUBNETS.values())),
+            'SubnetId': random.choice(CONFIG_SUBNETS),
             'EbsOptimized': is_ebs_optimized_type(instance_type),
             'IamInstanceProfile': {
                 'Arn': CONFIG_IAM_ROLE_ARN,
