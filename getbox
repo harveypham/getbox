@@ -803,7 +803,7 @@ def install_comp():
         dst = subprocess.check_output(['bash',
                                        '-c',
                                        'echo $(brew --prefix)/etc/bash_completion.d/'],
-                                      stderr=open(os.devnull)).strip()
+                                      stderr=open(os.devnull)).strip().decode()
 
         if not os.path.exists(dst):
             print_('Failed to install bash completion, %s does not exist' % dst, style='info')
