@@ -34,14 +34,22 @@ def get_argv_config_dict():
     return res
 
 
+def get_profile_name():
+    sess = boto3._get_default_session()
+    return sess.profile_name
+
+
 def get_config(k, defaultval, fromstr=str):
-    global _config, _args_config
+    global _profile, _config, _args_config
 
     if _config is None:
         config_path = os.path.expanduser("~/.getbox")
         if os.path.exists(config_path):
             with open(config_path) as f:
                 _config = json.loads(f.read())
+                profile_name = get_profile_name()
+                if profile_name != "default":
+                    _config = _config.get("profiles", {}).get(profile_name, {})
         else:
             _config = {}
 
@@ -936,12 +944,16 @@ def parse_size(s):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('--profile', help='Specify AWS credential profile')
     parser.add_argument('--mirror', help='mirror mode', action='store_true', default=None)
     parser.add_argument('--name', help='name', type=str)
     parser.add_argument('cmd', type=str, nargs='?')
     parser.add_argument('args', nargs='*')
     parser.print_usage = print_usage
     p = parser.parse_known_args()[0]
+
+    if p.profile:
+        boto3.setup_default_session(profile_name=p.profile)
 
     if p.cmd is None:
         print_usage()
