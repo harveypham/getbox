@@ -390,7 +390,7 @@ def ssh(tags, partId):
             if partId in inst['InstanceId'] or (name and partId in name):
                 dns = inst['PublicDnsName']
                 key = inst['KeyName']
-                keys = subprocess.check_output(["ssh-add", "-l"]).splitlines()
+                keys = subprocess.check_output(["ssh-add", "-l"]).decode().splitlines()
 
                 if not any((key in k) for k in keys):
                     print_('WARNING: You don\' seem to have key %s in your ssh agent' % key, style='bold')
