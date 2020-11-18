@@ -620,6 +620,10 @@ def get_detached_ebs_vol(client, tags, ebs_id_prefix):
         print_('Couldn\'t find EBS with id %s' % ebs_id_prefix, style='error')
         sys.exit(1)
 
+def get_subnet(zone):
+    zone_suffix = zone[-1]
+    index = ord(zone_suffix) - ord('a')
+    return CONFIG_SUBNETS[index]
 
 def get_spot(instance_type, tags, ebs_id_prefix, volume_size=None,
                                                  mirror=None,
@@ -678,7 +682,7 @@ def get_spot(instance_type, tags, ebs_id_prefix, volume_size=None,
         init = EBS_MIRROR_ATTACH_INIT if mirror else EBS_ATTACH_INIT
         ebs_vol_id, zone = vol['VolumeId'], vol['AvailabilityZone']
         launchSpec['UserData'] = b64encode_(init)
-        launchSpec['SubnetId'] = CONFIG_SUBNETS[zone]
+        launchSpec['SubnetId'] = get_subnet(zone)
     else:
         # create new EBS
         ebs_vol_id = None
