@@ -52,13 +52,16 @@ def get_config(k, defaultval, fromstr=str):
     else:
         return _config.get(k, defaultval)
 
+AMI_UBUNTU_BIONIC_STOCK = 'ami-0ac73f33a1888c64a'
+AMI_UBUNTU_BIONIC_DEEP_LEARNING = 'ami-063585f0e06d22308'
+
 CONFIG_EXTRA_TAGS = get_config('extra_tags', {})
 CONFIG_OWNER_TAG_NAME = get_config('owner_tag_name', 'owner')
 CONFIG_SSH_USER = get_config('ssh_user', 'ubuntu')
 CONFIG_SSH_WAIT_TIMEOUT_SECONDS = get_config('ssh_wait_timeout_secoinds', 600)
 CONFIG_ROOT_SIZE_GB = get_config('root_size_gb', 30)
-CONFIG_AMI_ID = get_config('ami_id', 'ami-790ec601')       # 16.04
-CONFIG_CUDA_AMI_ID = get_config('cuda_ami_id', 'ami-a1e534d9')  # 16.04 + CUDA
+CONFIG_AMI_ID = get_config('ami_id', AMI_UBUNTU_BIONIC_STOCK)
+CONFIG_CUDA_AMI_ID = get_config('cuda_ami_id', AMI_UBUNTU_BIONIC_DEEP_LEARNING)
 CONFIG_SSH_KEY_NAME = get_config('ssh_key_name', '')
 CONFIG_IAM_ROLE_ARN = get_config('iam_role_arn', '')
 CONFIG_SSH_FLAGS = get_config('ssh_flags', '-A')
