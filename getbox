@@ -98,6 +98,8 @@ def get_ami_id(instance_type):
         return CONFIG_CUDA_AMI_ID
     elif instance_type.startswith('p2.') and CONFIG_CUDA_AMI_ID:
         return CONFIG_CUDA_AMI_ID
+    elif instance_type.startwith('p3.') and CONFIG_CUDA_AMI_ID:
+        return CONFIG_CUDA_AMI_ID
     return CONFIG_AMI_ID
 
 
